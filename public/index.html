@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0d1117">
+<title>纳指/标普500 QDII 申购额度</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:#0d1117;color:#e6edf3;font:14px/1.55 -apple-system,"PingFang SC","Microsoft YaHei",system-ui,sans-serif;margin:0;padding:12px 12px 40px}
+h1{font-size:17px;margin:0 0 2px;font-weight:700}
+.top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px}
+.sub{color:#8b949e;font-size:11.5px;line-height:1.7}
+button{background:#21262d;color:#e6edf3;border:1px solid #30363d;border-radius:8px;padding:7px 12px;font-size:13px;cursor:pointer}
+button:active{background:#30363d}
+button.on{background:#1f6feb;border-color:#1f6feb;color:#fff}
+.bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.stat{background:#161b22;border:1px solid #21262d;border-radius:8px;padding:6px 10px;font-size:12px;color:#8b949e}
+.stat b{color:#e6edf3;font-size:15px;margin-right:3px}
+.stat.r b{color:#ff7b72}.stat.y b{color:#f0883e}.stat.g b{color:#7ee787}
+input{width:100%;background:#0d1117;border:1px solid #30363d;border-radius:8px;color:#e6edf3;padding:9px 11px;font-size:14px;margin-bottom:8px;outline:none}
+input:focus{border-color:#1f6feb}
+.grp{background:#1f2937;color:#ffd166;font-weight:700;font-size:12.5px;letter-spacing:.5px;padding:7px 10px;border-radius:8px;margin:14px 0 8px}
+.card{background:#11161d;border:1px solid #21262d;border-radius:10px;padding:10px 11px;margin-bottom:8px}
+.card.alert{border-color:#d29922;background:#1c1a12}
+.chead{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.nm{font-size:13.5px;font-weight:600;line-height:1.4}
+.co{color:#8b949e;font-size:11px;margin-top:1px}
+.badge{font-size:11px;padding:2px 7px;border-radius:20px;white-space:nowrap;flex:none;font-weight:600}
+.b-lim{background:rgba(240,136,62,.15);color:#f0883e;border:1px solid rgba(240,136,62,.35)}
+.b-susp{background:rgba(255,123,114,.13);color:#ff7b72;border:1px solid rgba(255,123,114,.35)}
+.b-open{background:rgba(126,231,135,.13);color:#7ee787;border:1px solid rgba(126,231,135,.35)}
+.b-only{background:rgba(88,166,255,.15);color:#79c0ff;border:1px solid rgba(88,166,255,.35)}
+.codes{color:#7ee787;font-family:Consolas,monospace;font-size:11px;margin-top:5px;word-break:break-all}
+.kv{display:flex;gap:8px;margin-top:7px;flex-wrap:wrap}
+.kv div{background:#161b22;border-radius:6px;padding:5px 9px;font-size:12px;flex:1;min-width:110px}
+.kv span{display:block;color:#8b949e;font-size:10.5px;margin-bottom:1px}
+.kv b{font-weight:700}
+.kv .zx b{color:#ffd166;font-size:14px}
+.kv .dx b{color:#e6edf3}
+.kv .dt b{color:#8b949e;font-size:12px;font-weight:500}
+.note{color:#8b949e;font-size:11px;margin-top:6px;line-height:1.6}
+.alert-t{color:#d29922;font-size:11.5px;margin-top:6px;font-weight:600}
+.foot{color:#8b949e;font-size:11px;margin-top:18px;line-height:1.9;border-top:1px solid #21262d;padding-top:10px}
+@media(min-width:760px){body{max-width:980px;margin:0 auto;padding:20px 20px 50px}h1{font-size:20px}}
+</style>
+</head>
+<body>
+<div class="top">
+  <div>
+    <h1>纳斯达克100 / 标普500 QDII 申购额度</h1>
+    <div class="sub" id="meta">加载中…</div>
+  </div>
+  <button id="rf">刷新</button>
+</div>
+<div class="bar" id="stats"></div>
+<div class="bar">
+  <button class="fbtn on" data-f="all">全部</button>
+  <button class="fbtn" data-f="quota">有额度</button>
+  <button class="fbtn" data-f="only">仅直销</button>
+  <button class="fbtn" data-f="susp">已暂停</button>
+</div>
+<input id="q" placeholder="搜索基金 / 公司 / 代码">
+<div id="box"></div>
+<script src="limits-snap.js"></script>
+<div class="foot">
+  <b>状态含义</b><br>
+  · <span style="color:#f0883e">限大额</span>＝<b>还能买，但有单日上限</b>。按"单日、单个基金账户、累计申购（含定投、转换转入）"计算，超出的部分基金公司有权拒绝。10 元/日的额度等于变相关门。<br>
+  · <span style="color:#ff7b72">暂停申购</span>＝<b>一分钱新钱都进不去</b>，只能赎回或场内买 ETF。<br>
+  · <span style="color:#79c0ff">仅直销开放</span>＝只在基金公司自家 App/官网能买，银行、券商、天天基金等代销渠道全停。<br>
+  · <span style="color:#7ee787">场内交易 / 暂停申赎</span>＝ETF 的一级市场申赎状态，与场外申购额度是两回事。<br><br>
+  <b>读表要点</b><br>
+  · 黄色＝直销额度，通常比代销宽 5–10 倍：大成纳指 100/10、万家纳指 100/10、建信纳指 50/10、大成标普500等权重 1000/100。<br>
+  · 华夏两只联接只在自家直销电子交易平台开放（100元/日），直销柜台和全部代销渠道都停了。<br>
+  · 状态每 15 分钟自动刷新，公告每 3 小时校验一次；有新公告会在卡片上标黄提示。<br>
+  · 数据源：各基金公司公告原文（天天基金公告库 PDF 逐字解析）＋ 实时申购状态。
+</div>
+<script>
+var DATA = null, FILTER = 'all', OFFLINE = false;
+function qs(u){ return u; }
+function esc(s){ return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+function badge(st){
+  var c = 'b-open';
+  if (st === '暂停申购' || st === '暂停申赎') c = 'b-susp';
+  else if (st === '限大额') c = 'b-lim';
+  else if (st === '仅直销开放') c = 'b-only';
+  return '<span class="badge ' + c + '">' + esc(st) + '</span>';
+}
+function bucket(r){
+  if (r.status === '暂停申购' || r.status === '暂停申赎') return 'susp';
+  if (r.status === '仅直销开放') return 'only';
+  return 'quota';
+}
+function render(){
+  if (!DATA) return;
+  var q = document.getElementById('q').value.trim().toLowerCase();
+  var box = document.getElementById('box'), out = '', shown = 0;
+  for (var i = 0; i < DATA.groups.length; i++){
+    var g = DATA.groups[i], rows = '';
+    for (var j = 0; j < g.rows.length; j++){
+      var r = g.rows[j], b = bucket(r);
+      if (FILTER !== 'all' && b !== FILTER) continue;
+      if (q){
+        var hay = (r.name + r.co + r.codes).toLowerCase();
+        if (hay.indexOf(q) < 0) continue;
+      }
+      var live = r.live || {}, st = live.sgzt || r.status;
+      var changed = live.sgzt && live.sgzt !== r.status && !r.liveOk;
+      rows += '<div class="card' + (r.newAnn ? ' alert' : '') + '">'
+        + '<div class="chead"><div><div class="nm">' + esc(r.name) + '</div><div class="co">' + esc(r.co) + '</div></div>' + badge(st) + '</div>'
+        + '<div class="codes">' + esc(r.codes) + '</div>'
+        + '<div class="kv">'
+        + '<div class="zx"><span>直销额度</span><b>' + esc(r.zx) + '</b></div>'
+        + '<div class="dx"><span>代销额度</span><b>' + esc(r.dx) + '</b></div>'
+        + '<div class="dt"><span>生效日</span><b>' + esc(r.date || '—') + '</b></div>'
+        + '</div>'
+        + (live.maxsg ? '<div class="note">实时单日上限 ' + esc(live.maxsg) + ' 元 · 起点 ' + esc(live.minsg || '-') + ' 元</div>' : '')
+        + (changed ? '<div class="alert-t">实时状态已变为「' + esc(live.sgzt) + '」，与公告记录不同</div>' : '')
+        + (r.newAnn ? '<div class="alert-t">发现新公告（' + esc(r.newAnn.date) + '）：' + esc(String(r.newAnn.title).slice(0, 40)) + '，额度待复核</div>' : '')
+        + (r.note ? '<div class="note">' + esc(r.note) + '</div>' : '')
+        + '</div>';
+      shown++;
+    }
+    if (rows) out += '<div class="grp">' + esc(g.name) + '</div>' + rows;
+  }
+  box.innerHTML = out || '<div class="card">没有匹配的基金</div>';
+  var s = DATA.stats || {};
+  document.getElementById('stats').innerHTML =
+    '<div class="stat"><b>' + shown + '</b>条结果</div>'
+    + '<div class="stat y"><b>' + (s.quota || 0) + '</b>限大额</div>'
+    + '<div class="stat r"><b>' + (s.suspended || 0) + '</b>已暂停</div>'
+    + '<div class="stat g"><b>' + (s.onlyDirect || 0) + '</b>仅直销</div>'
+    + (s.alerts ? '<div class="stat y"><b>' + s.alerts + '</b>待复核</div>' : '');
+  var t = new Date(DATA.generatedAt);
+  document.getElementById('meta').innerHTML = '状态更新 ' + t.toLocaleString('zh-CN', {hour12:false})
+    + ' · 公告基准 ' + esc(DATA.dataDate) + (DATA.lastError ? ' · ' + esc(DATA.lastError) : '');
+}
+function load(force, attempt){
+  attempt = attempt || 0;
+  var btn = document.getElementById('rf');
+  btn.textContent = '刷新中…'; btn.disabled = true;
+  fetch(qs(force ? '/limits/refresh' : '/limits.json'), { cache: 'no-store' })
+    .then(function(r){
+      if (r.status === 401) { var e1 = new Error('需要访问口令'); e1.code = 401; throw e1; }
+      if (!r.ok) { var e2 = new Error('服务端返回异常'); e2.code = r.status; throw e2; }
+      return r.json();
+    })
+    .then(function(j){
+      if (!j || !j.groups) throw new Error('数据格式异常');
+      DATA = j; render();
+      btn.textContent = '刷新'; btn.disabled = false;
+    })
+    .catch(function(err){
+      if (attempt < 2 && err.code !== 401){ setTimeout(function(){ load(force, attempt + 1); }, 1500); return; }
+      btn.textContent = '重试'; btn.disabled = false;
+      var code = err.code ? ('HTTP ' + err.code + ' · ') : '';
+      if (window.SNAP && !DATA){
+        DATA = window.SNAP; OFFLINE = true; render();
+        document.getElementById('meta').innerHTML = '⚠ 取不到实时数据（' + code + (err.message || err) + '），正在显示<b>离线快照</b>，不会自动更新。';
+        return;
+      }
+      document.getElementById('meta').innerHTML = '加载失败：' + code + (err.message || err) + '　（5 分钟后会自动重试）';
+    });
+}
+document.getElementById('rf').onclick = function(){ load(true); };
+document.getElementById('q').oninput = render;
+var fb = document.querySelectorAll('.fbtn');
+for (var i = 0; i < fb.length; i++) fb[i].onclick = function(){
+  for (var k = 0; k < fb.length; k++) fb[k].className = 'fbtn';
+  this.className = 'fbtn on'; FILTER = this.getAttribute('data-f'); render();
+};
+load(false);
+setInterval(function(){ load(false); }, 5 * 60 * 1000);
+</script>
+</body>
+</html>
