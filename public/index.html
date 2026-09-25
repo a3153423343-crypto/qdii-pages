@@ -87,6 +87,7 @@ function badge(st){
   return '<span class="badge ' + c + '">' + esc(st) + '</span>';
 }
 function bucket(r){
+  if (r.isEtf) return r.status === '暂停申赎' ? 'susp' : 'etf';   /* ETF 只有暂停的才进「已暂停」，其余只出现在「全部」 */
   if (r.status === '暂停申购' || r.status === '暂停申赎') return 'susp';
   if (r.status === '仅直销开放') return 'only';
   return 'quota';
@@ -139,7 +140,7 @@ function load(force, attempt){
   attempt = attempt || 0;
   var btn = document.getElementById('rf');
   btn.textContent = '刷新中…'; btn.disabled = true;
-  fetch(qs(force ? '/limits/refresh' : '/limits.json'), { cache: 'no-store' })
+  fetch(qs('limits.json?_=' + Date.now()), { cache: 'no-store' })
     .then(function(r){
       if (r.status === 401) { var e1 = new Error('需要访问口令'); e1.code = 401; throw e1; }
       if (!r.ok) { var e2 = new Error('服务端返回异常'); e2.code = r.status; throw e2; }
