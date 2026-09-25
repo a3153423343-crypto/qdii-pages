@@ -1,0 +1,10 @@
+.ghtoken
+.ghlogin
+.ghconfig/
+tools/
+auth.mjs
+setup.mjs
+watch.mjs
+verify.mjs
+chkurl.mjs
+dl.mjs
